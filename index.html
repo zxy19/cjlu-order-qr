@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="zh">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>计量点餐码</title>
+  </head>
+  <body>
+    <style>
+      body {
+        display: flex;
+        justify-content: center;
+      }
+      .container {
+        max-width: 1200px;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-evenly;
+      }
+      .item {
+        flex-basis: 300px;
+        margin: 5px;
+        padding: 40px;
+        display: flex;
+        justify-content: space-between;
+        box-shadow: 1px 1px 2px gray;
+        border-radius: 6px;
+        font-size: larger;
+      }
+      .item:after {
+        content: "→";
+      }
+
+      .modal {
+        position: fixed;
+        left: 0;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        background: #0000006c;
+        display: none;
+        flex-direction: row;
+        justify-content: space-around;
+      }
+      .modal .modal-ctr {
+        max-width: 400px;
+        padding: 59px;
+        flex-direction: column;
+        justify-content: space-between;
+        display: flex;
+        max-height: 600px;
+      }
+      .modal.show {
+        display: flex;
+      }
+      .modal .header {
+        background-color: #fff;
+        font-size: xx-large;
+        text-align: center;
+        border-radius: 6px;
+      }
+      .modal .qrcode {
+        background-color: #fff;
+        border-radius: 6px;
+      }
+      #QR-container {
+        display: flex;
+        flex-direction: column;
+      }
+      .modal a {
+        display: block;
+        background-color: #fff;
+        text-align: center;
+        padding: 14px;
+        border-radius: 6px;
+      }
+    </style>
+    <div class="container"></div>
+    <div class="modal">
+      <div class="modal-ctr">
+        <div class="header"></div>
+        <div class="qrcode">
+          <div id="QR-container"></div>
+        </div>
+        <a id="open-page"> 打开页面 </a>
+        <a
+          id="close-page"
+          onclick="event.target.parentNode.parentNode.classList.toggle('show')"
+        >
+          返回
+        </a>
+      </div>
+    </div>
+    <script src="./qrcode.min.js"></script>
+    <script>
+      const container = document.querySelector(".container");
+      fetch("./data.json")
+        .then((res) => res.json())
+        .then((data) => {
+          data.forEach((item) => {
+            const div = document.createElement("div");
+            div.classList.add("item");
+            div.innerHTML = item.name;
+            div.onclick = makeClick(item);
+            container.appendChild(div);
+          });
+        });
+
+      function makeClick(item) {
+        return (e) => {
+          e.preventDefault();
+          showQr(item);
+        };
+      }
+      function showQr(item) {
+        document.querySelector(".modal").classList.toggle("show");
+        document.querySelector(".header").innerHTML = item.name;
+
+        const qrContainer = document.getElementById("QR-container");
+        qrContainer.innerHTML = "";
+        new QRCode(qrContainer, item.url);
+
+        document.getElementById("open-page").href = item.url;
+      }
+    </script>
+  </body>
+</html>
